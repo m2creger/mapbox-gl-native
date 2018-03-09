@@ -10,7 +10,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NSString *MGLExpressionStyleFunction NS_STRING_ENUM;
-typedef NSString *MGLExpressionInterpolationMode NS_STRING_ENUM;
+typedef NSString *MGLExpressionInterpolationMode NS_TYPED_EXTENSIBLE_ENUM;
 
 /**
  An `NSString` identifying the `zoomLevel` operator in an `NSExpression`.
@@ -95,7 +95,7 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
 /**
  Returns a constant expression containing an `NSString`.
  
- This is equivalent to call `[NSExpression expressionForConstant:]`.
+ This is equivalent to call `[NSExpression expressionForConstantValue:]`.
  
  @param string The string constant.
  */
@@ -104,7 +104,7 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
 /**
  Returns a constant expression containing an `MGLColor`.
  
- This is equivalent to call `[NSExpression expressionForConstant:]`.
+ This is equivalent to call `[NSExpression expressionForConstantValue:]`.
  
  @param color The color constant.
  */
@@ -113,7 +113,7 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
 /**
  Returns a constant expression containing an `NSValue`.
  
- This is equivalent to call `[NSExpression expressionForConstant:]`.
+ This is equivalent to call `[NSExpression expressionForConstantValue:]`.
  
  @param value The value constant.
  */
