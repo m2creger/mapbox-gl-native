@@ -9,26 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NSString *MGLExpressionStyleFunction NS_STRING_ENUM;
 typedef NSString *MGLExpressionInterpolationMode NS_TYPED_EXTENSIBLE_ENUM;
-
-/**
- An `NSString` identifying the `zoomLevel` operator in an `NSExpression`.
- 
- This attribute corresponds to the
- <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-zoom"><code>zoom</code></a>
- expression reference in the Mapbox Style Specification.
- */
-extern MGL_EXPORT const MGLExpressionStyleFunction MGLExpressionStyleFunctionZoomLevel;
-
-/**
- An `NSString` identifying the `heatmapDensity` operator in an `NSExpression`.
- 
- This attribute corresponds to the
- <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-heatmap-density"><code>heatmap-density</code></a>
- expression reference in the Mapbox Style Specification.
- */
-extern MGL_EXPORT const MGLExpressionStyleFunction MGLExpressionStyleFunctionHeatmapDensity;
 
 /**
  An `NSString` identifying the `linear` interpolation type in an `NSExpression`.
@@ -56,6 +37,45 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
  expression reference in the Mapbox Style Specification.
  */
 extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolationModeCubicBezier;
+
+@interface NSExpression (MGLVariableAdditions)
+
+/**
+ `NSExpression` attribute that corresponds to the
+ <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-zoom"><code>zoom</code></a>
+ expression reference in the Mapbox Style Specification.
+ */
++ (NSExpression *)mgl_zoomLevelVariableExpression;
+
+/**
+ `NSExpression` attribute that corresponds to the
+ <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-heatmap-density"><code>heatmap-density</code></a>
+ expression reference in the Mapbox Style Specification.
+ */
++ (NSExpression *)mgl_heatmapVariableExpression;
+
+/**
+ `NSExpression` attribute that corresponds to the
+ <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#eexpressions-geometry-type"><code>geometry-type</code></a>
+ expression reference in the Mapbox Style Specification.
+ */
++ (NSExpression *)mgl_geometryTypeVariableExpression;
+
+/**
+ `NSExpression` attribute that corresponds to the
+ <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-id"><code>id</code></a>
+ expression reference in the Mapbox Style Specification.
+ */
++ (NSExpression *)mgl_featureIdentifierVariableExpression;
+
+/**
+ `NSExpression` attribute that corresponds to the
+ <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/#expressions-properties"><code>properties</code></a>
+ expression reference in the Mapbox Style Specification.
+ */
++ (NSExpression *)mgl_featurePropertiesVariableExpression;
+
+@end
 
 @interface NSExpression (MGLAdditions)
 
@@ -93,53 +113,6 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
 @property (nonatomic, readonly) id mgl_jsonExpressionObject;
 
 /**
- Returns a constant expression containing an `NSString`.
- 
- This is equivalent to call `[NSExpression expressionForConstantValue:]`.
- 
- @param string The string constant.
- */
-+ (instancetype)mgl_expressionForString:(nonnull NSString *)string;
-
-/**
- Returns a constant expression containing an `MGLColor`.
- 
- This is equivalent to call `[NSExpression expressionForConstantValue:]`.
- 
- @param color The color constant.
- */
-+ (instancetype)mgl_expressionForColor:(nonnull MGLColor *)color;
-
-/**
- Returns a constant expression containing an `NSValue`.
- 
- This is equivalent to call `[NSExpression expressionForConstantValue:]`.
- 
- @param value The value constant.
- */
-+ (instancetype)mgl_expressionForValue:(nonnull NSValue *)value;
-
-/**
- Returns a conditional function expression specifying the string predicate, and
- colors for each condition.
- 
- @param conditionPredicate The predicate to get evaluated.
- @param trueColor The color for conditions equal to true.
- @param falseColor The color value if the condition is equal to false.
- */
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueColor:(nonnull MGLColor*)trueColor falseColor:(nonnull MGLColor *)falseColor;
-
-/**
- Returns a conditional function expression specifying the string predicate, and
- values for each condition.
- 
- @param conditionPredicate The predicate to get evaluated.
- @param trueValue The value for conditions equal to true.
- @param falseValue The value for conditions equal to false.
- */
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueValue:(nonnull NSValue *)trueValue falseValue:(nonnull NSValue *)falseValue;
-
-/**
  Returns a conditional function expression specifying the string predicate, and
  expressions for each condition.
  
@@ -147,27 +120,7 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
  @param trueExpression The expression for conditions equal to true.
  @param falseExpression The expression for conditions equal to false.
  */
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueExpression:(nonnull NSExpression *)trueExpression falseExpresssion:(nonnull NSExpression *)falseExpression;
-
-/**
- Returns a step function expression specifying the function operator, default value
- and stops.
- 
- @param function The operator type in which this expression is applied.
- @param value The default value can be boolean or numeric.
- @param stops The stops dictionay must be numeric literals in strictly ascending order.
- */
-+ (instancetype)mgl_expressionForStepFunction:(nonnull MGLExpressionStyleFunction)function defaultValue:(nonnull NSValue *)value stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops;
-
-/**
- Returns a step function expression specifying the function operator, default color
- and stops.
- 
- @param function The operator type in which this expression is applied.
- @param color The default color.
- @param stops The stops dictionay must be numeric literals in strictly ascending order.
- */
-+ (instancetype)mgl_expressionForStepFunction:(nonnull MGLExpressionStyleFunction)function defaultColor:(nonnull MGLColor *)color stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops;
++ (instancetype)mgl_expressionForConditional:(nonnull NSPredicate *)conditionPredicate trueExpression:(nonnull NSExpression *)trueExpression falseExpresssion:(nonnull NSExpression *)falseExpression;
 
 /**
  Returns a step function expression specifying the function operator, default expression
@@ -178,18 +131,6 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
  @param stops The stops dictionay must be numeric literals in strictly ascending order.
  */
 + (instancetype)mgl_expressionForStepFunction:(nonnull NSExpression*)operatorExpression defaultExpression:(nonnull NSExpression *)expression stops:(nonnull NSExpression*)stops;
-
-/**
- Returns an interpolated function expression specifying the function operator, curve type
- and steps.
- 
- @param function The operator type in which this expression is applied.
- @param curveType The curve type could be `MGLExpressionInterpolationModeLinear`,
-                    `MGLExpressionInterpolationModeExponential` and
-                    `MGLExpressionInterpolationModeCubicBezier`.
- @param steps The steps dictionay must be numeric literals in strictly ascending order.
- */
-+ (instancetype)mgl_expressionForInterpolateFunction:(nonnull MGLExpressionStyleFunction)function curveType:(nonnull MGLExpressionInterpolationMode)curveType steps:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)steps;
 
 /**
  Returns an interpolated function expression specifying the function operator, curve type,
@@ -204,19 +145,13 @@ extern MGL_EXPORT const MGLExpressionInterpolationMode MGLExpressionInterpolatio
  */
 + (instancetype)mgl_expressionForInterpolateFunction:(nonnull NSExpression*)expressionOperator curveType:(nonnull MGLExpressionInterpolationMode)curveType parameters:(nullable NSExpression *)parameters steps:(nonnull NSExpression*)steps;
 
-/**
- Returns a string constant expression appending the passed string.
- 
- @param string The string to append.
- */
-- (instancetype)mgl_appendingString:(NSString *)string;
 
 /**
  Returns a string constant expression appending the passed expression.
  
- @param expression The evaluated expression must return a string.
+ @param string The string to append.
  */
-- (instancetype)mgl_appendingExpression:(NSExpression *)expression;
+- (instancetype)mgl_expressionByAppendingExpression:(NSExpression *)string;
 
 
 @end

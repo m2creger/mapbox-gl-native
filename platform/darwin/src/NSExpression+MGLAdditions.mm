@@ -13,9 +13,6 @@
 
 #import <objc/runtime.h>
 
-const MGLExpressionStyleFunction MGLExpressionStyleFunctionZoomLevel = @"zoomLevel";
-const MGLExpressionStyleFunction MGLExpressionStyleFunctionHeatmapDensity = @"heatmapDensity";
-
 const MGLExpressionInterpolationMode MGLExpressionInterpolationModeLinear = @"linear";
 const MGLExpressionInterpolationMode MGLExpressionInterpolationModeExponential = @"exponential";
 const MGLExpressionInterpolationMode MGLExpressionInterpolationModeCubicBezier = @"cubic-bezier";
@@ -459,6 +456,30 @@ const MGLExpressionInterpolationMode MGLExpressionInterpolationModeCubicBezier =
 
 @end
 
+@implementation NSExpression (MGLVariableAdditions)
+
++ (NSExpression *)mgl_zoomLevelVariableExpression {
+    return [NSExpression expressionForVariable:@"zoomLevel"];
+}
+
++ (NSExpression *)mgl_heatmapVariableExpression {
+    return [NSExpression expressionForVariable:@"heatmapDensity"];
+}
+
++ (NSExpression *)mgl_geometryTypeVariableExpression {
+    return [NSExpression expressionForVariable:@"mgl_geometryType"];
+}
+
++ (NSExpression *)mgl_featureIdentifierVariableExpression {
+    return [NSExpression expressionForVariable:@"mgl_featureIdentifier"];
+}
+
++ (NSExpression *)mgl_featurePropertiesVariableExpression {
+    return [NSExpression expressionForVariable:@"mgl_featureProperties"];
+}
+
+@end
+
 @implementation NSExpression (MGLExpressionAdditions)
 
 - (NSExpression *)mgl_expressionWithContext:(NSDictionary<NSString *, NSExpression *> *)context {
@@ -489,68 +510,23 @@ NSArray *MGLSubexpressionsWithJSONObjects(NSArray *objects) {
     return subexpressions;
 }
 
-+ (instancetype)mgl_expressionForString:(NSString *)string {
-    return [NSExpression expressionForConstantValue:string];
++ (instancetype)mgl_expressionForConditional:(nonnull NSPredicate *)conditionPredicate trueExpression:(nonnull NSExpression *)trueExpression falseExpresssion:(nonnull NSExpression *)falseExpression {
+    if (@available(iOS 9.0, *)) {
+        return [NSExpression expressionForConditional:conditionPredicate trueExpression:trueExpression falseExpression:falseExpression];
+    } else {
+        return [NSExpression expressionForFunction:@"MGL_IF" arguments:@[[NSExpression expressionWithFormat:@"%@", conditionPredicate], trueExpression, falseExpression]];
+    }
 }
 
-+ (instancetype)mgl_expressionForColor:(MGLColor *)color {
-    return [NSExpression expressionForConstantValue:color];
-}
-+ (instancetype)mgl_expressionForValue:(NSValue *)value {
-    return [NSExpression expressionForConstantValue:value];
-}
-
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueColor:(nonnull MGLColor*)trueColor falseColor:(nonnull MGLColor *)falseColor {
-    return [NSExpression mgl_expressionForConditional:conditionPredicate
-                                       trueExpression:[NSExpression mgl_expressionForColor:trueColor]
-                                     falseExpresssion:[NSExpression mgl_expressionForColor:falseColor]];
-}
-
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueValue:(nonnull NSValue *)trueValue falseValue:(nonnull NSValue *)falseValue {
-    return [NSExpression mgl_expressionForConditional:conditionPredicate
-                                       trueExpression:[NSExpression mgl_expressionForValue:trueValue]
-                                     falseExpresssion:[NSExpression mgl_expressionForValue:falseValue]];
-}
-
-+ (instancetype)mgl_expressionForConditional:(nonnull NSString *)conditionPredicate trueExpression:(nonnull NSExpression *)trueExpression falseExpresssion:(nonnull NSExpression *)falseExpression {
-    NSPredicate *conditional = [NSPredicate predicateWithFormat:conditionPredicate];
-    return [NSExpression expressionForConditional:conditional trueExpression:trueExpression falseExpression:falseExpression];
-}
-
-+ (instancetype)mgl_expressionForStepFunction:(MGLExpressionStyleFunction)function defaultValue:(NSValue *)value stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops {
-    return [NSExpression mgl_expressionForStepFunction:[NSExpression expressionForVariable:function]
-                                     defaultExpression:[NSExpression mgl_expressionForValue:value]
-                                                 stops:[NSExpression expressionWithFormat:@"%@", stops]];
-}
-
-+ (instancetype)mgl_expressionForStepFunction:(MGLExpressionStyleFunction)function defaultString:(NSString *)string stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops {
-    return [NSExpression mgl_expressionForStepFunction:[NSExpression expressionForVariable:function]
-                                     defaultExpression:[NSExpression mgl_expressionForString:string]
-                                                 stops:[NSExpression expressionWithFormat:@"%@", stops]];
-}
-
-+ (instancetype)mgl_expressionForStepFunction:(MGLExpressionStyleFunction)function defaultColor:(MGLColor *)color stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops {
-    return [NSExpression mgl_expressionForStepFunction:[NSExpression expressionForVariable:function]
-                                     defaultExpression:[NSExpression mgl_expressionForColor:color]
-                                                 stops:[NSExpression expressionWithFormat:@"%@", stops]];
-}
-
-+ (instancetype)mgl_expressionForStepFunction:(NSExpression *)operatorExpression defaultExpression:(NSExpression *)expression stops:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)stops {
-    return [NSExpression expressionForFunction:operatorExpression selectorName:@"mgl_stepWithMinimum:stops:" arguments:@[expression, stops]];
-}
-
-+ (instancetype)mgl_expressionForInterpolateFunction:(MGLExpressionStyleFunction)function curveType:(nonnull MGLExpressionInterpolationMode)curveType steps:(nonnull NS_DICTIONARY_OF(NSNumber *, id) *)steps; {
-    return [NSExpression mgl_expressionForInterpolateFunction:[NSExpression expressionForVariable:function]
-                                                    curveType:curveType
-                                                   parameters:nil
-                                                        steps:[NSExpression expressionWithFormat:@"%@", steps]];
++ (instancetype)mgl_expressionForStepFunction:(NSExpression *)operatorExpression defaultExpression:(NSExpression *)expression stops:(nonnull NSExpression *)stops {
+    return [NSExpression expressionForFunction:@"mgl_step:from:stops:"
+                                     arguments:@[operatorExpression, expression, stops]];
 }
 
 + (instancetype)mgl_expressionForInterpolateFunction:(nonnull NSExpression*)expressionOperator curveType:(nonnull MGLExpressionInterpolationMode)curveType parameters:(nullable NSExpression *)parameters steps:(nonnull NSExpression*)steps {
-    NSExpression *sanitizeParams = parameters ? parameters : [NSExpression expressionWithFormat:@"%@", parameters];
-    return [NSExpression expressionForFunction:expressionOperator
-                                  selectorName:@"mgl_interpolateWithCurveType:parameters:stops:"
-                                     arguments:@[[NSExpression expressionForConstantValue:curveType], sanitizeParams, steps]];
+    NSExpression *sanitizeParams = parameters ? parameters : [NSExpression expressionForConstantValue:nil];
+    return [NSExpression expressionForFunction:@"mgl_interpolate:withCurveType:parameters:stops:"
+                                     arguments:@[expressionOperator, [NSExpression expressionForConstantValue:curveType], sanitizeParams, steps]];
 }
 
 + (instancetype)expressionWithMGLJSONObject:(id)object {
@@ -729,15 +705,15 @@ NSArray *MGLSubexpressionsWithJSONObjects(NSArray *objects) {
             return [NSExpression expressionForFunction:@"mgl_step:from:stops:"
                                              arguments:@[inputExpression, minimum, stopExpression]];
         } else if ([op isEqualToString:@"zoom"]) {
-            return [NSExpression expressionForVariable:@"zoomLevel"];
+            return NSExpression.mgl_zoomLevelVariableExpression;
         } else if ([op isEqualToString:@"heatmap-density"]) {
-            return [NSExpression expressionForVariable:@"heatmapDensity"];
+            return NSExpression.mgl_heatmapVariableExpression;
         } else if ([op isEqualToString:@"geometry-type"]) {
-            return [NSExpression expressionForVariable:@"mgl_geometryType"];
+            return NSExpression.mgl_geometryTypeVariableExpression;
         } else if ([op isEqualToString:@"id"]) {
-            return [NSExpression expressionForVariable:@"mgl_featureIdentifier"];
+            return NSExpression.mgl_featureIdentifierVariableExpression;
         }  else if ([op isEqualToString:@"properties"]) {
-            return [NSExpression expressionForVariable:@"mgl_featureProperties"];
+            return NSExpression.mgl_featurePropertiesVariableExpression;
         } else if ([op isEqualToString:@"var"]) {
             return [NSExpression expressionForVariable:argumentObjects.firstObject];
         } else if ([op isEqualToString:@"case"]) {
@@ -789,12 +765,7 @@ NSArray *MGLSubexpressionsWithJSONObjects(NSArray *objects) {
     return nil;
 }
 
-
-
-- (instancetype)mgl_appendingString:(NSString *)string {
-    return [self mgl_appendingExpression:[NSExpression mgl_expressionForString:string]];
-}
-- (instancetype)mgl_appendingExpression:(NSExpression *)expression {
+- (instancetype)mgl_expressionByAppendingExpression:(NSExpression *)expression {
     return [NSExpression expressionForFunction:self selectorName:@"stringByAppendingString:" arguments:@[expression]];
 }
 
