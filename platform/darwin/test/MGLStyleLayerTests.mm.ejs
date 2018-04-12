@@ -80,7 +80,7 @@
                               @"<%- objCName(property) %> should round-trip constant value expressions.");
 
         constantExpression = [NSExpression expressionWithFormat:<%- objCTestValue(property, type, false, 3) %>];
-        NSExpression *functionExpression = [NSExpression mgl_expressionForStepFunction:[NSExpression expressionForVariable:MGLExpressionStyleFunctionZoomLevel]
+        NSExpression *functionExpression = [NSExpression expressionWithFormat:@"mgl_step:from:stops:($zoomLevel, %@, %@)", constantExpression, @{@18: constantExpression}];
         layer.<%- objCName(property) %> = functionExpression;
 
         mbgl::style::IntervalStops<<%- mbglType(property) %>> intervalStops = {{
