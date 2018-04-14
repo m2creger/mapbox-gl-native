@@ -19,6 +19,17 @@ based on the feature’s attributes. Use the `MGLVectorStyleLayer.predicate`
 property to include only the features in the source layer that satisfy a
 condition that you define.
 
+When a predicate is used for filtering vector data the key should be cast
+explicitly into the key's type. A number based key will become: `CAST(key, 'NSNumber')`
+
+`NSPredicateOperatorType`                     | Format string syntax
+----------------------------------------------|---------------------
+`NSGreaterThanOrEqualToPredicateOperatorType` | `CAST(key, 'valueType') >= value`<br />`CAST(key, 'valueType') => value`
+`NSLessThanOrEqualToPredicateOperatorType`    | `CAST(key, 'valueType') <= value`<br />`CAST(key, 'valueType') =< value`
+`NSGreaterThanPredicateOperatorType`          | `CAST(key, 'valueType') > value`
+`NSLessThanPredicateOperatorType`             | `CAST(key, 'valueType') < value`
+
+
 The following comparison operators are supported:
 
 `NSPredicateOperatorType`                     | Format string syntax
@@ -65,7 +76,7 @@ attribute or, alternatively, one of the following special attributes:
 </thead>
 <tbody>
 <tr>
-   <td><code>$id</code></td>
+   <td><code>$mgl_featureIdentifier</code></td>
    <td>
        A value that uniquely identifies the feature in the containing source.
        For details on the types of values that may be associated with this key,
@@ -74,7 +85,7 @@ attribute or, alternatively, one of the following special attributes:
    </td>
 </tr>
 <tr>
-   <td><code>$type</code></td>
+   <td><code>$mgl_geometryType</code></td>
    <td>
        The type of geometry represented by the feature. A feature’s type is
        guaranteed to be one of the following strings:
